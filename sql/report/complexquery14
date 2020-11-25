@@ -1,0 +1,49 @@
+DELIMITER //
+CREATE PROCEDURE searchRe (IN name varchar(30))
+	BEGIN
+    	SELECT Re.request_id,Ui.username,Re.status
+    	from Usert Ui, (SELECT *
+            	from Usert U
+            	inner join request R
+            	on U.SSN = R.stylist_SSN
+            	natural join request_info RI
+            	where R.request_id = RI.request_id) as Re
+    	where Re.username = name and Re.customer_SSN = Ui.SSN;
+	END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Find_Top_Ten()
+	BEGIN
+SELECT U.SSN,username,first_name,last_name,total from usert U
+	RIGHT JOIN (SELECT *
+   	 FROM (
+   		 SELECT SSN , SUM(total_amount) AS total
+   			 FROM ((customer c
+       		 INNER JOIN buy b
+       		 ON c.SSN = b.customer_SSN)
+       		 INNER JOIN Ordert o
+       		 ON b.order_id = o.order_id)
+   		 GROUP BY c.SSN
+   	 ) AS T
+   	 ORDER BY T.total DESC
+   	 LIMIT 10) AS Mx ON U.SSN = Mx.SSN;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE Find_top_3_customer()
+	BEGIN
+SELECT *
+   	 FROM (
+   		 SELECT SSN , COUNT(*) AS total_count
+   			 FROM (customer c
+       		 INNER JOIN request r
+       		 ON c.SSN = r.customer_SSN)
+   		 GROUP BY c.SSN
+   	 ) AS T
+   	 ORDER BY T.total_count DESC
+   	 LIMIT 3;
+END //
+DELIMITER ;
+

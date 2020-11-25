@@ -1,0 +1,28 @@
+-----------------------------------------------10-1------------------------------------
+DELIMITER //
+CREATE FUNCTION cal_avg(s CHAR(13)) RETURNS float(3,2)
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result float(3,2);
+        SET result = (
+            SELECT avg(rating)
+            FROM stylist natural join rate_stylist natural join review
+            WHERE SSN = s
+            GROUP by SSN
+        );
+        RETURN result;
+    END //
+DELIMITER ;
+-----------------------------------------------10-2-----------------------------------
+DELIMITER //
+CREATE FUNCTION lastid() RETURNS MEDIUMINT
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result MEDIUMINT;
+        SET result = (
+            SELECT max(request_ID)
+            FROM request_info
+        );
+        RETURN result;
+    END //
+DELIMITER ;

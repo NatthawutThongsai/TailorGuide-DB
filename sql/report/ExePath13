@@ -1,0 +1,13 @@
+SELECT DISTINCT U.username
+    from Usert U natural join Stylist S
+    where U.username LIKE CONCAT('%',"Irene",'%');
+
+
+SELECT DISTINCT U.username
+FROM Usert U
+WHERE U.SSN = (SELECT S.SSN
+    FROM Stylist S
+    WHERE U.SSN = S.SSN
+    )
+    AND
+    U.username LIKE CONCAT('%',"Irene",'%');

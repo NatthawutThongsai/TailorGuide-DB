@@ -1,0 +1,13 @@
+	sqlQuery3 = "insert into usert (SSN,username,first_name,last_name) values (%s,%s,%s,%s)"
+            cursor.execute(sqlQuery3, objdata3)
+            sqlQuery2 = "insert into user_phone_no (SSN,phone_no) values (%s,%s)"
+            cursor.execute(sqlQuery2, objdata2)
+            sqlQuery = "insert into stylist(SSN,profile_pic,bio,bio_image,avg_rating) values (%s,null,%s,null,3.00)"
+            cursor.execute(sqlQuery, objdata)
+            sqlQuery1 = "insert into stylist_style (SSN,style) values (%s,%s)"
+            cursor.execute(sqlQuery1, objdata1)
+            
+            if(len(wdata[0])==13):
+                connection.commit()
+                state = 0
+            connection.rollback()

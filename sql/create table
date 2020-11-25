@@ -1,0 +1,290 @@
+CREATE database tg;
+
+
+CREATE TABLE Usert(
+    SSN             CHAR(13)        not null unique,
+    username        VARCHAR(20)     not null unique,
+    first_name      VARCHAR(30)     not null,
+    last_name       VARCHAR(30)     not null,
+    PRIMARY KEY (SSN)
+);
+
+
+CREATE TABLE User_phone_no(
+    SSN         CHAR(13)    not null unique,
+    phone_no    CHAR(13)    not null unique,
+    FOREIGN KEY (SSN) REFERENCES Usert(SSN) ON DEL,ETE CASCADE
+);
+
+
+CREATE TABLE Stylist(
+  SSN            CHAR(13)     not null unique,
+  profile_pic    BLOB      default null,
+  bio            VARCHAR(100) default null,
+  bio_image      BLOB      default null,
+  avg_rating     FLOAT(3,2)   default 0.00,
+  PRIMARY KEY (SSN),
+  FOREIGN KEY (SSN) REFERENCES Usert(SSN) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Stylist_style (
+  SSN        CHAR(13)         not null,
+  style      VARCHAR(30)      not null,
+  CONSTRAINT pk_StylistStyle PRIMARY KEY (SSN,style),
+  FOREIGN KEY (SSN) REFERENCES Usert(SSN) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Customer (
+  SSN         CHAR(13)        not null unique,
+  sex         VARCHAR(50)     default null,
+  address     VARCHAR(100)    not null,
+  birth_date  DATE            default null,
+  profile_pic BLOB            default null,
+  waist       float(5,2)      default null,
+  bust        float(5,2)      default null,
+  hip         float(5,2)      default null,
+  height      float(5,2)      default null,
+  weight      float(5,2)      default null,
+  PRIMARY KEY (SSN),
+  FOREIGN KEY (SSN) REFERENCES Usert(SSN) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Customer_cloth(
+  SSN              CHAR(13)        not null,
+  cloth_image_ID   CHAR(10)        not null,
+  cloth_image      BLOB            default null,
+  image_desc       VARCHAR(100)    default null,
+  CONSTRAINT pk_customerCloth PRIMARY KEY (SSN, cloth_image_ID),
+  FOREIGN KEY (SSN) REFERENCES Customer(SSN) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Seller(
+  SSN         CHAR(13)        not null unique,
+  PRIMARY KEY(SSN),
+  FOREIGN KEY (SSN) REFERENCES Usert(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Shop(
+  shop_ID     CHAR(10)    not null unique,
+  profile_pic BLOB     default null,
+  shop_name   VARCHAR(30) not null unique,
+  avg_rating  FLOAT(3,2)  default 0.00,
+  seller_SSN  CHAR(13)    not null unique,
+  PRIMARY KEY (shop_ID),
+  FOREIGN KEY (seller_SSN) REFERENCES Seller(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Shop_style(
+  shop_ID     CHAR(10)    not null unique,
+  style       VARCHAR(30)  not null,
+  CONSTRAINT pk_ShopStyle PRIMARY KEY (shop_ID,style),
+  FOREIGN KEY (shop_ID) REFERENCES Shop(shop_ID) ON DELETE CASCADE 
+);
+
+CREATE TABLE Product(
+  shop_ID       CHAR(10)      not null,
+  product_ID    CHAR(10)      not null unique,
+  product_Name  VARCHAR(30)   not null,
+  price         INT           not null,
+  description   VARCHAR(100)  not null,
+  CONSTRAINT pk_product PRIMARY KEY (shop_ID, product_ID),
+  FOREIGN KEY (shop_ID) REFERENCES Shop(shop_ID) ON DELETE CASCADE 
+);
+
+
+CREATE TABLE Product_image(
+  product_ID    CHAR(10)   not null,
+  image_ID      CHAR(10)   not null UNIQUE,
+  image         BLOB       DEFAULT null,
+  CONSTRAINT pk_ProImage PRIMARY KEY (product_ID,image_ID),
+  FOREIGN KEY (product_ID) REFERENCES Product(product_ID) ON DELETE CASCADE 
+);
+
+
+CREATE TABLE Message(
+  message_ID  CHAR(10)      not null UNIQUE,
+  by_who      CHAR(13)      not null,
+  text        VARCHAR(1000) default null,
+  image       BLOB          default null,
+  mtime       DATETIME      not null,
+  PRIMARY KEY (message_ID)
+);
+
+
+CREATE TABLE Consult(
+  stylist_SSN  CHAR(13)   not null unique,
+  customer_SSN CHAR(13)   not null unique,
+  message_ID   CHAR(10)   not null unique,
+  time_out     DATETIME   not null,
+  CONSTRAINT pk_consult PRIMARY KEY (stylist_SSN,customer_SSN,message_ID),
+  FOREIGN KEY (stylist_SSN) REFERENCES Stylist(SSN) ON DELETE CASCADE,
+  FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN) ON DELETE CASCADE,
+  FOREIGN KEY (message_ID) REFERENCES Message(message_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Chat(
+  seller_SSN    CHAR(13)    not null unique,
+  customer_SSN  CHAR(13)    not null unique,
+  message_ID    CHAR(10)     not null unique,
+  CONSTRAINT pk_chat PRIMARY KEY (seller_SSN, customer_SSN, message_ID),
+  FOREIGN KEY (seller_SSN) REFERENCES Seller(SSN) ON DELETE CASCADE,
+  FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN) ON DELETE CASCADE,
+  FOREIGN KEY (message_ID) REFERENCES Message(message_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Blog (
+    blog_ID     CHAR(10)    NOT NULL,
+    post_date   DATETIME    NOT NULL,
+    content     VARCHAR(500)    NOT NULL,
+    title       VARCHAR(30)     NOT NULL,
+    PRIMARY KEY (blog_ID)
+);
+
+CREATE TABLE Blog_image (
+    image_ID    CHAR(10)    NOT NULL,
+    image       BLOB        default NULL,
+    blog_ID     CHAR(10)    NOT NULL,
+    CONSTRAINT pk_blogImage PRIMARY KEY (blog_ID,image_ID),
+    FOREIGN KEY (blog_ID) REFERENCES Blog(blog_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Advertising_Blog (
+    blog_ID     CHAR(10)     NOT NULL,
+    stylist_SSN     CHAR(13)  ,
+    seller_SSN      CHAR(13) ,
+    ads_cost       INT      NOT NULL,
+    start_date      DATE    NOT NULL,
+    end_date       DATE     NOT NULL,
+    PRIMARY KEY (blog_ID),
+    FOREIGN KEY (blog_ID) REFERENCES Blog(blog_ID) ON DELETE CASCADE,
+    FOREIGN KEY (stylist_SSN) REFERENCES Stylist(SSN) ON DELETE CASCADE,
+    FOREIGN KEY (seller_SSN) REFERENCES Seller(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Recommendation_blog (
+    blog_ID     CHAR(10)     NOT NULL,
+    stylist_SSN    CHAR(13)  NOT NULL,
+    PRIMARY KEY (blog_ID),
+    FOREIGN KEY (blog_ID) REFERENCES Blog(blog_ID) ON DELETE CASCADE,
+    FOREIGN KEY (stylist_SSN) REFERENCES Stylist(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Recommendation_blog_tag (
+    blog_ID     CHAR(10)     NOT NULL,
+    tag     VARCHAR(100)    NOT NULL,
+    CONSTRAINT pk_recBlogTag PRIMARY KEY (blog_ID,tag),
+    FOREIGN KEY (blog_ID) REFERENCES Recommendation_blog(blog_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Community_blog (
+    blog_ID       CHAR(100)      NOT NULL,
+    PRIMARY KEY (blog_ID),
+    FOREIGN KEY (blog_ID) REFERENCES Blog(blog_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Community_blog_tag (
+    blog_ID       VARCHAR(100)      NOT NULL,
+    PRIMARY KEY (blog_ID),
+    FOREIGN KEY (blog_ID) REFERENCES Community_blog(blog_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Comment_info (
+    comment_ID      CHAR(10)    NOT NULL,
+    ctime        DATETIME        NOT NULL,
+    by_who      CHAR(10)    NOT NULL,
+    text        VARCHAR(1000),
+    image       BLOB,
+    PRIMARY KEY (comment_ID)
+);
+
+CREATE TABLE Comment (
+    blog_ID     VARCHAR(10)       NOT NULL,
+    comment_ID  CHAR(10)       NOT NULL,
+    user_SSN   CHAR(13)       NOT NULL,
+    CONSTRAINT pk_comment PRIMARY KEY (blog_ID,comment_ID,user_SSN),
+    FOREIGN KEY (blog_ID) REFERENCES Blog(blog_ID) ON DELETE CASCADE,
+    FOREIGN KEY (comment_ID) REFERENCES Comment_info(comment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (user_SSN) REFERENCES Usert(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Review (
+    review_ID  CHAR(10)     NOT NULL UNIQUE,
+    rating     INT    NOT NULL,
+    comment     VARCHAR(1000),
+    PRIMARY KEY (review_ID)
+);
+
+CREATE TABLE Rate_stylist (
+    stylist_SSN      CHAR(13)    NOT NULL,
+    customer_SSN     CHAR(13)    NOT NULL,
+    review_ID        CHAR(10)    NOT NULL,
+    CONSTRAINT pk_rateStylist PRIMARY KEY (stylist_SSN , customer_SSN , review_ID),
+    FOREIGN KEY (stylist_SSN) REFERENCES Stylist(SSN),
+    FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN),
+    FOREIGN KEY (review_ID) REFERENCES Review(review_ID)
+);
+
+
+CREATE TABLE Request_info (
+    request_ID          MEDIUMINT          NOT NULL AUTO_INCREMENT,
+    request_time        DATETIME           NOT NULL,
+    status              VARCHAR(20)        DEFAULT 'pending',
+    PRIMARY KEY (request_ID)
+);
+
+CREATE TABLE Request (
+    stylist_SSN         CHAR(13)     NOT NULL,
+    customer_SSN        CHAR(13)     NOT NULL,
+    request_ID          MEDIUMINT    NOT NULL,
+    CONSTRAINT pk_request PRIMARY KEY (stylist_SSN, customer_SSN,request_ID),
+    FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN) ON DELETE CASCADE,
+    FOREIGN KEY (stylist_SSN) REFERENCES Stylist(SSN) ON DELETE CASCADE
+);
+
+CREATE TABLE Ordert (
+    order_ID        CHAR(14)  NOT NULL,
+    order_date      DATE    NOT NULL,
+    send_date       DATE    DEFAULT NULL,
+    recieve_date    DATE,
+    total_amount    INT     NOT NULL,
+    PRIMARY KEY (order_ID)
+);
+
+CREATE TABLE Buy (
+    order_ID    CHAR(14)    NOT NULL,
+    customer_SSN    CHAR(13)    NOT NULL,
+    product_ID  CHAR(13)    NOT NULL,
+    CONSTRAINT pk_buy PRIMARY KEY (order_ID,customer_SSN,product_ID),
+    FOREIGN KEY (order_ID) REFERENCES Ordert(order_ID) ON DELETE CASCADE,
+    FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN) ON DELETE CASCADE,
+    FOREIGN KEY (product_ID) REFERENCES Product(product_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Post (
+    user_SSN CHAR(14)   NOT NULL,
+    blog_ID CHAR(10)    NOT NULL,
+    CONSTRAINT pk_post PRIMARY KEY (user_SSN,blog_ID),
+    FOREIGN KEY (user_SSN) REFERENCES Usert(SSN) ON DELETE CASCADE,
+    FOREIGN KEY (blog_ID) REFERENCES Community_blog(blog_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Rate_shop (
+    customer_SSN    CHAR(13)    NOT NULL,
+    shop_ID     CHAR(10)    NOT NULL,
+    review_ID   CHAR(10)    NOT NULL,
+    CONSTRAINT pk_rateShop PRIMARY KEY (customer_SSN,shop_ID,review_ID),
+    FOREIGN KEY (customer_SSN) REFERENCES Customer(SSN) ON DELETE CASCADE,
+    FOREIGN KEY (shop_ID) REFERENCES Shop(shop_ID) ON DELETE CASCADE,
+    FOREIGN KEY (review_ID) REFERENCES Review(review_ID) ON DELETE CASCADE
+);
+
+
+
+
+

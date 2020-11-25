@@ -1,0 +1,230 @@
+
+
+DELIMITER //
+CREATE PROCEDURE searchStylist (IN name varchar(30))
+    BEGIN
+        SELECT DISTINCT username, first_name, last_name, avg_rating
+        from Usert natural join Stylist
+        where username LIKE CONCAT('%',name,'%');
+    END //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE searchStylist2 (IN name varchar(30))
+    BEGIN
+        SELECT DISTINCT U.username, U.first_name, U.last_name, S.avg_rating
+        from Usert U , Stylist S
+        where U.SSN = S.SSN and (U.username LIKE CONCAT('%',name) or U.username LIKE CONCAT(name,'%'))
+        ;
+    END //
+DELIMITER ;
+
+
+---------------------------------------------------------------------------99999999999999999
+DELIMITER //
+CREATE PROCEDURE searchStyle (IN name varchar(30))
+	BEGIN
+		SELECT DISTINCT SSN, username, first_name, last_name, style, avg_rating
+		from Usert natural join Stylist natural join Stylist_style
+		where style LIKE CONCAT(name)
+		ORDER BY avg_rating DESC
+		LIMIT 3;
+	END //
+DELIMITER ;
+--------------------------------------------------------------------------------99999999999999999
+
+
+DELIMITER //
+CREATE PROCEDURE searchRe (IN name varchar(30))
+    BEGIN
+        SELECT Re.request_id,Ui.username,Re.status
+        from Usert Ui,(SELECT *
+                from Usert U 
+                inner join request R
+                on U.SSN = R.stylist_SSN
+                natural join request_info RI
+                where R.request_id = RI.request_id) as Re
+        where Re.username = name and Re.customer_SSN = Ui.SSN;
+    END //
+DELIMITER ;
+
+
+-----------------------------------------------------10--------------------------------
+DELIMITER //
+CREATE FUNCTION cal_avg(s CHAR(13)) RETURNS float(3,2)
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result float(3,2);
+        SET result = (
+            SELECT avg(rating)
+            FROM  rate_stylist natural join review
+            WHERE stylist_SSN = s
+            GROUP by stylist_SSN
+        );
+        RETURN result;
+    END //
+DELIMITER ;
+-------------------------------------------------------10--------------------------------
+
+
+DELIMITER //
+CREATE PROCEDURE updateRating(IN S CHAR(13))
+    BEGIN
+        UPDATE stylist
+        SET avg_rating = cal_avg(S) 
+        where SSN = S;
+    END //
+DELIMITER ;
+
+
+
+DELIMITER //
+CREATE FUNCTION upID(nID CHAR(10)) RETURNS CHAR(13)
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result CHAR(13);
+        SET result = (
+            SELECT stylist_SSN 
+            FROM review natural join rate_stylist
+            WHERE review_ID = nID
+        );
+        RETURN result;
+    END //
+DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE TRIGGER update_rating
+AFTER INSERT
+ON rate_stylist FOR EACH ROW
+BEGIN
+    CALL updateRating(NEW.stylist_SSN);
+END$$
+DELIMITER ;
+
+
+
+CREATE TABLE UpdateRequestTime(Update_time datetime NOT NULL);
+
+DELIMITER $$
+CREATE TRIGGER requestLOG
+BEFORE UPDATE
+ON request_info FOR EACH ROW
+BEGIN
+    INSERT INTO UpdateRequestTime values(now());
+END$$
+DELIMITER ;
+
+INSERT INTO Review(review_ID, rating, comment) VALUES
+('0000000007', 2, 'good');
+
+INSERT INTO Rate_stylist(stylist_SSN, customer_SSN, review_ID) VALUES
+('0000000000004', '0000000000007', '0000000007');
+
+
+----------------------------------------------------10-----------------------------------
+DELIMITER //
+CREATE FUNCTION lastid() RETURNS MEDIUMINT
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result MEDIUMINT;
+        SET result = (
+            SELECT max(request_ID)
+            FROM request_info
+        );
+        RETURN result;
+    END //
+DELIMITER ;
+-----------------------------------------------------10--------------------------------------
+
+
+---------------------------------------------9----------------------------------------------
+DELIMITER //
+CREATE PROCEDURE sentRequest(IN sty CHAR(13), IN cus CHAR(13))
+    BEGIN
+        INSERT INTO Request_info(request_ID, request_time, status) VALUES
+            (null, now(), DEFAULT);
+        
+        INSERT INTO Request(stylist_SSN, customer_SSN, request_ID) VALUES
+            (sty, cus, lastid());
+    END //
+DELIMITER ;
+--------------------------------------------------9------------------------------------------
+
+DELIMITER //
+CREATE FUNCTION cusRe(id MEDIUMINT) RETURNS CHAR(13)
+    DETERMINISTIC READS SQL DATA
+    BEGIN
+        DECLARE result CHAR(13);
+        SET result = (
+        SELECT customer_SSN
+        FROM request_info natural join request
+        WHERE request_id = id
+        );
+        RETURN result;
+    END //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE acceptRequest(IN ID MEDIUMINT)
+    BEGIN
+        DECLARE cus CHAR(13);
+        SET cus = cusRe(ID);
+
+        UPDATE Request_info INNER JOIN Request ON Request_info.request_ID = Request.request_ID
+        SET status = 'cancel'
+        where customer_SSN LIKE cus and status like 'p%';
+
+        UPDATE Request_info
+        SET status = 'accept'
+        where request_ID = ID;
+    END //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE rejectRequest(IN ID MEDIUMINT)
+    BEGIN
+        UPDATE Request_info
+        SET status = 'reject'
+        where request_ID = ID;
+    END //
+DELIMITER ;
+
+
+
+SET autocommit = 0;
+START TRANSACTION;
+CALL sentRequest('0000000000004','0000000000008');
+
+COMMIT; 
+SET autocommit = 1;
+
+ROLLBACK;
+SET autocommit = 1;
+
+
+
+DELIMITER //
+CREATE PROCEDURE Find_Top_Ten
+    BEGIN
+        select U.SSN,username,first_name,last_name,total from usert U
+	right join (SELECT *
+   	 FROM (
+   		 SELECT SSN , SUM(total_amount) AS total
+   			 FROM ((customer c
+       		 INNER JOIN buy b
+       		 ON c.SSN = b.customer_SSN)
+       		 INNER JOIN Ordert o
+       		 ON b.order_id = o.order_id)
+   		 GROUP BY c.SSN
+   	 ) AS T
+   	 ORDER BY T.total DESC
+   	 LIMIT 10) as Mx on U.SSN = Mx.SSN;
+
+    END //
+DELIMITER ;
+

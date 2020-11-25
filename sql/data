@@ -1,0 +1,132 @@
+INSERT INTO Usert (SSN, username, first_name, last_name) VALUES
+  ('0000000000001', 'book', 'natta', 'boonwi'),
+  ('0000000000002', 'tar', 'thira', 'khun'),
+  ('0000000000003', 'knot', 'nutwut', 'thong'),
+  ('0000000000004', 'tle', 'nutpoom', 'data sci' ),
+  ('0000000000005', 'up', 'jir', 'ez'),
+  ('0000000000006', 'Irene', 'Rene', 'Baebae'),
+  ('0000000000007', 'Joy', 'Sooyoung', 'Park'),
+  ('0000000000008', 'Heart', 'Natchanon', 'Voraruth'),
+  ('0000000000009', 'Winter', 'Minjeong', 'Kim')
+;
+
+INSERT INTO User_phone_no(SSN, phone_no) VALUES
+('0000000000001','0800000101'),
+('0000000000002','0800000102'),
+('0000000000003','0800000103'),
+('0000000000004','0800000204'),
+('0000000000005','0800000205'),
+('0000000000006','0800000206'),
+('0000000000007','0800000307'),
+('0000000000008','0863881051'),
+('0000000000009','0800000309')
+;
+
+INSERT INTO Customer(SSN, sex, address, birth_date, profile_pic, waist, bust, hip, height, weight) VALUES
+('0000000000007', 'female', 342, '1996-11-03', NULL, 1,2,3,171,63),
+('0000000000008', 'male', 342, '2000-11-03', NULL, 4,5,6,182,84),
+('0000000000009', 'female', 342, '2001-01-01', NULL, 7,8,9,165,46)
+;
+
+INSERT INTO Customer_cloth(SSN, cloth_image_ID, cloth_image, image_desc) VALUES
+('0000000000007', '001', NULL, NULL),
+('0000000000008', '002', NULL, NULL),
+('0000000000008', '003', NULL, NULL),
+('0000000000008', '004', NULL, NULL),
+('0000000000009', '005', NULL, NULL),
+('0000000000009', '006', NULL, NULL)
+;
+
+INSERT INTO Stylist(SSN, profile_pic, bio, bio_image, avg_rating) VALUES
+('0000000000004', NULL, 'hi', NULL, 3.14),
+('0000000000005', NULL, 'sawasdee', NULL,1.41),
+('0000000000006', NULL, 'annyeong', NULL, 4.99)
+;
+
+INSERT INTO  Stylist_style(SSN, style) VALUES
+('0000000000004','rock'),
+('0000000000004','semi-rock'),
+('0000000000005','hard-rock'),
+('0000000000005','semi-hard'),
+('0000000000006','vanilla')
+;
+
+INSERT INTO Seller(SSN) VALUES
+('0000000000001'),
+('0000000000002'),
+('0000000000003')
+;
+
+INSERT INTO Shop(shop_ID, profile_pic, shop_name, avg_rating, seller_SSN) VALUES
+('0000000001', NULL, 'Red Velvet', 5.00, '0000000000001'),
+('0000000002', NULL, 'Exo', 3.14, '0000000000002'),
+('0000000003', NULL, 'Aespa', 4.99, '0000000000003')
+;
+
+
+INSERT INTO Shop_style(shop_ID, style) VALUES
+('0000000001', 'rock'),
+('0000000002', 'vanilla'),
+('0000000003', 'semi-hard')
+;
+
+INSERT INTO Product(shop_ID, product_ID, product_Name, price, description) VALUES
+('0000000001', '0000000001', 'official fanlight', 5000, 'rvv fanlight'),
+('0000000001', '0000000002', 'photo card', 3700, 'irene card'),
+('0000000002', '0000000003', 'official fanlight', 8050, 'exo fanlight'),
+('0000000002', '0000000004', 'badge', 4900, 'sehun badge'),
+('0000000002', '0000000005', 'bracelet', 7620, 'exo bracelet'),
+('0000000003', '0000000006', 'light stick', 2540, 'aespa light stick'),
+('0000000003', '0000000007', 'shirt', 2020, 'winter shirt')
+;
+
+INSERT INTO Product_image(product_ID, image_ID, image) VALUES
+('0000000001', '0000000001', NULL),
+('0000000002', '0000000002', NULL),
+('0000000003', '0000000003', NULL),
+('0000000004', '0000000004', NULL),
+('0000000005', '0000000005', NULL),
+('0000000006', '0000000006', NULL),
+('0000000007', '0000000007', NULL),
+('0000000007', '0000000008', NULL)
+;
+
+INSERT INTO Review(review_ID, rating, comment) VALUES
+('0000000001', 5, 'good'),
+('0000000002', 2, 'bad'),
+('0000000003' ,4, 'ok'),
+('0000000004', 3, 'okay'),
+('0000000005', 5, 'excellent'),
+('0000000006' ,5, 'very good')
+;
+
+INSERT INTO Rate_stylist(stylist_SSN, customer_SSN, review_ID) VALUES
+('0000000000004', '0000000000007', '0000000002'),
+('0000000000006', '0000000000008', '0000000001'),
+('0000000000005', '0000000000009', '0000000003')
+;
+
+INSERT INTO Ordert(order_ID, order_date, send_date, recieve_date, total_amount) VALUES
+ ('00000000000001','2020-01-01', '2020-01-02', '2020-01-05', 7200),
+ ('00000000000002','2020-02-14', '2020-02-15', '2020-11-16', 1200),
+ ('00000000000003', '2020-02-21', '2020-02-23', '2020-11-25', 2200),
+ ('00000000000004', '2020-11-11', '2020-11-11', '2020-11-13', 4200)
+;
+
+
+INSERT INTO Buy(order_ID, customer_SSN, product_ID) VALUES
+ ('00000000000002', '0000000000007', '0000000001'),
+ ('00000000000001', '0000000000008', '0000000002'),
+ ('00000000000001', '0000000000008', '0000000003'),
+ ('00000000000001', '0000000000009', '0000000004'),
+ ('00000000000003', '0000000000009', '0000000005'),
+ ('00000000000004', '0000000000009', '0000000005'),
+ ('00000000000004', '0000000000009', '0000000006')
+;
+
+INSERT INTO Rate_shop(customer_SSN, shop_ID, review_ID) VALUES
+('0000000000007', '0000000001', '0000000004'),
+('0000000000008', '0000000002', '0000000005'),
+('0000000000009', '0000000003', '0000000006')
+;
+

@@ -1,0 +1,21 @@
+DELIMITER //
+CREATE PROCEDURE searchStyle (IN name varchar(30))
+	BEGIN
+		SELECT DISTINCT username, first_name, last_name, style, avg_rating
+		from Usert natural join Stylist natural join Stylist_style
+		where style LIKE CONCAT('%',name,'%')
+		ORDER BY avg_rating DESC
+		LIMIT 3;
+	END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE sentRequest(IN sty CHAR(13), IN cus CHAR(13))
+BEGIN
+INSERT INTO Request_info(request_ID, request_time, status) VALUES
+(null, now(), DEFAULT);
+        			
+INSERT INTO Request(stylist_SSN, customer_SSN, request_ID) VALUES
+(sty, cus, lastid());
+    		END //
+DELIMITER ;
